@@ -1,0 +1,14 @@
+package com.knowledgeassistant.backend.repository;
+
+import com.knowledgeassistant.backend.entity.RefreshToken;
+import com.knowledgeassistant.backend.entity.User;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.Optional;
+import java.util.UUID;
+
+/** Persistence operations for refresh tokens. */
+public interface RefreshTokenRepository extends JpaRepository<RefreshToken, UUID> {
+    Optional<RefreshToken> findByToken(String token);
+    void deleteByUser(User user);
+}
