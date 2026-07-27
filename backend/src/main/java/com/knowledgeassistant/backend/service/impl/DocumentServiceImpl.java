@@ -8,6 +8,7 @@ import com.knowledgeassistant.backend.repository.DocumentRepository;
 import com.knowledgeassistant.backend.repository.UserRepository;
 import com.knowledgeassistant.backend.service.DocumentService;
 import com.knowledgeassistant.backend.service.FileStorageService;
+import com.knowledgeassistant.backend.service.RagIntegrationService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -31,13 +32,16 @@ public class DocumentServiceImpl implements DocumentService {
     private final DocumentRepository documentRepository;
     private final UserRepository userRepository;
     private final FileStorageService fileStorageService;
+    private final RagIntegrationService ragIntegrationService;
 
     public DocumentServiceImpl(DocumentRepository documentRepository,
                                UserRepository userRepository,
-                               FileStorageService fileStorageService) {
+                               FileStorageService fileStorageService,
+                               RagIntegrationService ragIntegrationService) {
         this.documentRepository = documentRepository;
         this.userRepository = userRepository;
         this.fileStorageService = fileStorageService;
+        this.ragIntegrationService = ragIntegrationService;
     }
 
     @Override
@@ -58,6 +62,9 @@ public class DocumentServiceImpl implements DocumentService {
 
         Document saved = documentRepository.save(document);
         log.info("Document uploaded: id={}, user={}, file={}", saved.getId(), userId, saved.getFilename());
+
+        // Asynchronously trigger the RAG processing pipeline
+        ragIntegrationService.triggerProcessing(saved.getId(), userId, storedPath);
 
         return toResponse(saved);
     }

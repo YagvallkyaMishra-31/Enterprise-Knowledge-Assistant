@@ -30,6 +30,7 @@ server:
 
 app:
   rag-service-url: ${RAG_SERVICE_URL:http://localhost:8000}
+  internal-api-key: ${INTERNAL_API_KEY:default-dev-key}
   cors:
     allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000}
   security:
