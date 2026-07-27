@@ -23,6 +23,11 @@ spring:
 server:
   port: ${SERVER_PORT:8080}
 
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
 app:
   rag-service-url: ${RAG_SERVICE_URL:http://localhost:8000}
   cors:
@@ -32,3 +37,8 @@ app:
       secret: ${JWT_SECRET:dGhpcy1pcy1hLXBsYWNlaG9sZGVyLXNlY3JldC1rZXktZm9yLWRldi1vbmx5LTMyYg==}
       expiration-ms: ${JWT_EXPIRATION_MS:900000}
       refresh-expiration-ms: ${JWT_REFRESH_EXPIRATION_MS:604800000}
+
+  upload:
+    root-path: ${UPLOAD_ROOT_PATH:/tmp/knowledge-assistant-uploads}
+    max-size-mb: ${UPLOAD_MAX_SIZE_MB:50}
+    allowed-extensions: ${UPLOAD_ALLOWED_EXTENSIONS:pdf,txt,md}

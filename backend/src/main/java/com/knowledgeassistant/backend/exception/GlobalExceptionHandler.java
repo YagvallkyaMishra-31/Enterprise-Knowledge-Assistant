@@ -7,6 +7,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -31,19 +32,44 @@ public class GlobalExceptionHandler {
         return buildErrorResponse(HttpStatus.UNAUTHORIZED, ex.getMessage());
     }
 
+    @ExceptionHandler(DocumentNotFoundException.class)
+    public ResponseEntity<Map<String, Object>> handleDocumentNotFound(DocumentNotFoundException ex) {
+        return buildErrorResponse(HttpStatus.NOT_FOUND, ex.getMessage());
+    }
+
+    @ExceptionHandler(UnsupportedFileTypeException.class)
+    public ResponseEntity<Map<String, Object>> handleUnsupportedFileType(UnsupportedFileTypeException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(FileTooLargeException.class)
+    public ResponseEntity<Map<String, Object>> handleFileTooLarge(FileTooLargeException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
+    }
+
+    @ExceptionHandler(FileStorageException.class)
+    public ResponseEntity<Map<String, Object>> handleFileStorage(FileStorageException ex) {
+        return buildErrorResponse(HttpStatus.INTERNAL_SERVER_ERROR, "File operation failed");
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<Map<String, Object>> handleMaxUploadSize(MaxUploadSizeExceededException ex) {
+        return buildErrorResponse(HttpStatus.BAD_REQUEST, "File exceeds the maximum upload size");
+    }
+
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(MethodArgumentNotValidException ex) {
         Map<String, String> errors = new HashMap<>();
         for (FieldError error : ex.getBindingResult().getFieldErrors()) {
             errors.put(error.getField(), error.getDefaultMessage());
         }
-        
+
         Map<String, Object> body = new HashMap<>();
         body.put("timestamp", Instant.now().toString());
         body.put("status", HttpStatus.BAD_REQUEST.value());
         body.put("error", "Validation Error");
         body.put("details", errors);
-        
+
         return new ResponseEntity<>(body, HttpStatus.BAD_REQUEST);
     }
 
