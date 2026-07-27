@@ -6,6 +6,7 @@ import logging
 
 from app.core.config import settings
 from app.services.document_processor import process_document
+from app.services.rag_query_service import execute_rag_query
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,10 @@ class ProcessDocumentRequest(BaseModel):
     documentId: str
     userId: str
     filePath: str
+
+class QueryRequest(BaseModel):
+    userId: str
+    question: str
 
 @router.post("/process-document")
 def handle_process_document(
@@ -41,3 +46,30 @@ def handle_process_document(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Document processing failed: {str(e)}"
         )
+
+@router.post("/query")
+def handle_query(
+    request: QueryRequest,
+    x_internal_api_key: str = Header(None)
+):
+    """
+    Executes a RAG query (retrieval and generation).
+    Secured via X-Internal-Api-Key.
+    """
+    if not x_internal_api_key or x_internal_api_key != settings.INTERNAL_API_KEY:
+        logger.warning("Unauthorized access attempt to internal query API")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid internal API key"
+        )
+        
+    try:
+        response = execute_rag_query(request.userId, request.question)
+        return response
+    except Exception as e:
+        logger.error(f"Error executing RAG query: {str(e)}")
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=f"Query failed: {str(e)}"
+        )
+

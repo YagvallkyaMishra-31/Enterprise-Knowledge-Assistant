@@ -17,6 +17,10 @@ class Settings:
     DB_PASSWORD: str = os.getenv("DB_PASSWORD", "postgres")
     INTERNAL_API_KEY: str = os.getenv("INTERNAL_API_KEY", "default-dev-key")
     UPLOAD_ROOT_PATH: str = os.getenv("UPLOAD_ROOT_PATH", "/app/uploads")
+    
+    RAG_TOP_K: int = int(os.getenv("RAG_TOP_K", "5"))
+    RAG_MAX_DISTANCE: float = float(os.getenv("RAG_MAX_DISTANCE", "0.6"))
+    OLLAMA_CHAT_MODEL: str = os.getenv("OLLAMA_CHAT_MODEL", "phi3:mini")
 
 
 settings = Settings()
