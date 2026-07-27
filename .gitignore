@@ -32,8 +32,14 @@ build/
 venv/
 env/
 
-# === Environment ===
+# === Node / Frontend ===
+node_modules/
+
+# === Environment & Volumes ===
 .env
+uploads/
+document-uploads/
+
 
 # === Docker ===
 docker-compose.override.yml
