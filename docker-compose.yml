@@ -47,9 +47,22 @@ services:
   rag-service:
     build: ./rag-service
     environment:
-      OLLAMA_BASE_URL: http://ollama:11434
+      POSTGRES_HOST: ${DB_HOST:-postgres}
+      DB_HOST: ${DB_HOST:-postgres}
+      DB_PORT: ${DB_PORT:-5432}
+      DB_NAME: ${DB_NAME:-knowledge_assistant}
+      DB_USERNAME: ${DB_USERNAME:-postgres}
+      DB_PASSWORD: ${DB_PASSWORD:-postgres}
+      OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
+      INTERNAL_API_KEY: ${INTERNAL_API_KEY:-default-dev-key}
+      UPLOAD_ROOT_PATH: /app/uploads
     ports:
       - "8000:8000"
+    volumes:
+      - document-uploads:/app/uploads:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - ka-network
 
