@@ -53,7 +53,7 @@ def process_document(document_id: str, user_id: str, file_path: str):
                 cur.execute(
                     """
                     INSERT INTO document_chunks 
-                    (document_id, chunk_text, chunk_index, embedding, page_number)
+                    (document_id, content, chunk_index, embedding, page_number)
                     VALUES (%s, %s, %s, %s, %s)
                     """,
                     (document_id, chunk_text_content, chunk_index, embedding, page_number)

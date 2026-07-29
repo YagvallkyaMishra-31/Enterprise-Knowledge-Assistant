@@ -15,9 +15,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /** Intercepts incoming requests to validate JWT and set the SecurityContext. */
 @Component
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
+
+    private static final Logger log = LoggerFactory.getLogger(JwtAuthenticationFilter.class);
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
@@ -58,7 +63,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 }
             }
         } catch (Exception e) {
-            // Invalid token, do not authenticate
+            // Log the exception but do not throw, allow the entry point to handle unauthenticated requests
+            log.warn("JWT authentication failed (invalid or expired token): {}", e.getMessage());
         }
         filterChain.doFilter(request, response);
     }
