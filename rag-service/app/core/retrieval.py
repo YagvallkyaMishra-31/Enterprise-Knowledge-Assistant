@@ -54,7 +54,7 @@ def retrieve_chunks(user_id: str, question: str, top_k: int, max_distance: float
                     d.filename,
                     dc.chunk_index,
                     dc.page_number,
-                    dc.chunk_text,
+                    dc.content,
                     (dc.embedding <=> %s::vector) AS distance
                 FROM document_chunks dc
                 JOIN documents d ON d.id = dc.document_id
