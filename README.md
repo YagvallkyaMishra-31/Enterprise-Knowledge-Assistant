@@ -34,8 +34,8 @@ docker compose up --build
 curl http://localhost:8080/api/health    # → {"status":"UP"}
 curl http://localhost:8000/health        # → {"status":"ok"}
 
-# 5. Pull an LLM model into Ollama
-docker compose exec ollama ollama pull phi3:mini
+# 5. Pull an LLM model into Ollama natively on host
+ollama pull phi3:mini
 ```
 
 ## Services
@@ -45,7 +45,7 @@ docker compose exec ollama ollama pull phi3:mini
 | `backend`     | 8080          | 8080          | Auth, orchestration, persistence     |
 | `rag-service` | 8000          | 8000          | RAG pipeline (chunking, retrieval)   |
 | `postgres`    | 5432          | 5432          | Primary data store + vector search   |
-| `ollama`      | 11434         | 11434         | Local LLM inference                  |
+| `ollama`      | 11434         | 11434         | Local LLM inference (Native Host)    |
 
 ## Project Structure
 
@@ -66,3 +66,7 @@ knowledge-assistant/
 ├── .env.example              Environment variable template
 └── .gitignore
 ```
+
+## Local Development Notes
+
+Ollama runs natively on Windows (not in Docker) for local development due to WSL2 memory constraints on resource-limited dev machines — this avoids double-virtualization overhead. Production deployment on the VPS runs Ollama in Docker as originally designed, since the VPS has dedicated RAM with no competing desktop workload.
