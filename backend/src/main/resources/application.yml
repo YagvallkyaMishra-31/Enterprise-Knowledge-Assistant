@@ -43,3 +43,6 @@ app:
     root-path: ${UPLOAD_ROOT_PATH:/tmp/knowledge-assistant-uploads}
     max-size-mb: ${UPLOAD_MAX_SIZE_MB:50}
     allowed-extensions: ${UPLOAD_ALLOWED_EXTENSIONS:pdf,txt,md}
+
+  rate-limit:
+    requests-per-minute: ${RATE_LIMIT_REQUESTS_PER_MINUTE:10}
