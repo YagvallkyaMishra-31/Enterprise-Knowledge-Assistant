@@ -1,0 +1,1 @@
+[Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}; $req = [Net.HttpWebRequest]::Create("https://registry-1.docker.io"); try { $resp = $req.GetResponse() } catch { $resp = $_.Exception.Response }; $cert = $req.ServicePoint.Certificate; $cert.Issuer
