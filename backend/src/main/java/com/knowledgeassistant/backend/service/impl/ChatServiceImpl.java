@@ -137,60 +137,57 @@ public class ChatServiceImpl implements ChatService {
                 .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
 
-        // Asynchronously execute request to not block tomcat threads
+        // Run on a separate thread so we don't block a Tomcat NIO thread.
+        // Use synchronous httpClient.send (NOT sendAsync) so this thread
+        // stays alive for the entire duration of the streaming response.
         CompletableFuture.runAsync(() -> {
             StringBuilder fullAnswer = new StringBuilder();
             StringBuilder sourcesJson = new StringBuilder();
             
             try {
-                httpClient.sendAsync(request, HttpResponse.BodyHandlers.ofLines())
-                    .thenAccept(response -> {
-                        if (response.statusCode() != 200) {
-                            log.error("rag-service returned HTTP {}", response.statusCode());
-                            sendErrorEvent(emitter, "RAG service returned HTTP " + response.statusCode());
-                            emitter.completeWithError(new RuntimeException("Downstream HTTP error"));
-                            return;
-                        }
+                HttpResponse<java.util.stream.Stream<String>> response =
+                        httpClient.send(request, HttpResponse.BodyHandlers.ofLines());
 
-                        // Process streaming lines
-                        response.body().forEach(line -> {
-                            if (line == null || line.isBlank()) return;
-                            try {
-                                JsonNode node = objectMapper.readTree(line);
-                                String type = node.path("type").asText();
-                                
-                                if ("sources".equals(type)) {
-                                    JsonNode sourcesNode = node.path("sources");
-                                    sourcesJson.append(sourcesNode.toString());
-                                    emitter.send(SseEmitter.event().name("sources").data(line));
-                                } else if ("token".equals(type)) {
-                                    String text = node.path("text").asText();
-                                    fullAnswer.append(text);
-                                    emitter.send(SseEmitter.event().name("token").data(line));
-                                } else if ("done".equals(type)) {
-                                    // Save history before completing
-                                    saveQaPair(session, question, fullAnswer.toString(), sourcesJson.toString());
-                                    emitter.send(SseEmitter.event().name("done").data(line));
-                                    emitter.complete();
-                                } else if ("error".equals(type)) {
-                                    String msg = node.path("message").asText();
-                                    sendErrorEvent(emitter, msg);
-                                    emitter.completeWithError(new RuntimeException("LLM Error: " + msg));
-                                }
-                            } catch (Exception e) {
-                                log.error("Error processing stream line", e);
-                            }
-                        });
-                    })
-                    .exceptionally(ex -> {
-                        log.error("HTTP request to rag-service failed", ex);
-                        sendErrorEvent(emitter, "Failed to communicate with RAG service: " + ex.getMessage());
-                        emitter.completeWithError(ex);
-                        return null;
-                    });
+                if (response.statusCode() != 200) {
+                    log.error("rag-service returned HTTP {}", response.statusCode());
+                    sendErrorEvent(emitter, "RAG service returned HTTP " + response.statusCode());
+                    emitter.completeWithError(new RuntimeException("Downstream HTTP error"));
+                    return;
+                }
+
+                // Process streaming lines — this blocks until the rag-service
+                // stream closes, which is exactly what we want.
+                response.body().forEach(line -> {
+                    if (line == null || line.isBlank()) return;
+                    try {
+                        JsonNode node = objectMapper.readTree(line);
+                        String type = node.path("type").asText();
+                        
+                        if ("sources".equals(type)) {
+                            JsonNode sourcesNode = node.path("sources");
+                            sourcesJson.append(sourcesNode.toString());
+                            emitter.send(SseEmitter.event().name("sources").data(line));
+                        } else if ("token".equals(type)) {
+                            String text = node.path("text").asText();
+                            fullAnswer.append(text);
+                            emitter.send(SseEmitter.event().name("token").data(line));
+                        } else if ("done".equals(type)) {
+                            // Save history before completing
+                            saveQaPair(session, question, fullAnswer.toString(), sourcesJson.toString());
+                            emitter.send(SseEmitter.event().name("done").data(line));
+                            emitter.complete();
+                        } else if ("error".equals(type)) {
+                            String msg = node.path("message").asText();
+                            sendErrorEvent(emitter, msg);
+                            emitter.completeWithError(new RuntimeException("LLM Error: " + msg));
+                        }
+                    } catch (Exception e) {
+                        log.error("Error processing stream line", e);
+                    }
+                });
             } catch (Exception ex) {
-                log.error("Unexpected error in async stream", ex);
-                sendErrorEvent(emitter, "Unexpected internal error");
+                log.error("HTTP request to rag-service failed", ex);
+                sendErrorEvent(emitter, "Failed to communicate with RAG service: " + ex.getMessage());
                 emitter.completeWithError(ex);
             }
         });
