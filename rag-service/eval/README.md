@@ -42,7 +42,10 @@ The output contains:
 This project **deliberately** keeps the evaluation harness fully self-hosted rather than outsourcing it to a paid cloud provider (e.g., OpenAI, Anthropic). This is a conscious design decision consistent with USP #3 — the entire system, including quality measurement, runs without external dependencies.
 
 ### The trade-off
-Local LLM-as-judge evaluation is inherently slower than cloud-API judges. RAGAS evaluates each question across 4 metrics, with each metric requiring one or more LLM reasoning calls. For 15 questions, this means ~60 judge calls through the local model.
+Local LLM-as-judge evaluation is inherently slower than cloud-API judges. RAGAS evaluates each question across multiple metrics, with each metric requiring one or more LLM reasoning calls. 
+
+### Lightweight Evaluation Script (Sanity Check)
+Because the full LLM-judge RAGAS evaluation is slow on local hardware, a secondary script (`run_lightweight_eval.py`) is provided. This script runs a fast, deterministic sanity check on every eval, checking keyword overlap and fact mention rates. **It is separate from and not a substitute for the RAGAS LLM-judge metrics, which remain the primary evaluation.** It simply acts as a fast heuristic to ensure the RAG generation pipeline isn't completely broken before running the expensive RAGAS checks.
 
 ### Root cause of initial slowness
 The `OLLAMA_KEEP_ALIVE=0` setting (used to relieve memory pressure during normal interactive use) caused the model to be **unloaded from memory after every single request**. This meant each of RAGAS's ~60 judge calls paid the full model cold-load penalty (~2.2GB read from disk) on top of actual inference time.
