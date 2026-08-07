@@ -1,5 +1,8 @@
 # Enterprise Knowledge Assistant
 
+[![CI](https://github.com/YagvallkyaMishra-31/Enterprise-Knowledge-Assistant/actions/workflows/ci.yml/badge.svg)](https://github.com/YagvallkyaMishra-31/Enterprise-Knowledge-Assistant/actions/workflows/ci.yml)
+[![Build & Push Images](https://github.com/YagvallkyaMishra-31/Enterprise-Knowledge-Assistant/actions/workflows/build-and-push.yml/badge.svg)](https://github.com/YagvallkyaMishra-31/Enterprise-Knowledge-Assistant/actions/workflows/build-and-push.yml)
+
 A production-grade RAG platform where users upload documents and get answers that are always grounded in and cited from their own content — self-hosted end to end, with measurable retrieval quality.
 
 ## Tech Stack
@@ -70,3 +73,19 @@ knowledge-assistant/
 ## Local Development Notes
 
 Ollama runs natively on Windows (not in Docker) for local development due to WSL2 memory constraints on resource-limited dev machines — this avoids double-virtualization overhead. Production deployment on the VPS runs Ollama in Docker as originally designed, since the VPS has dedicated RAM with no competing desktop workload.
+
+## CI/CD Pipeline
+
+The project uses GitHub Actions for continuous integration and deployment.
+
+1. **Continuous Integration (`ci.yml`)**: On every push and pull request to `main`, three parallel jobs run:
+   - **Backend**: Runs `mvn verify` to compile Java and run JUnit tests.
+   - **RAG Service**: Performs a syntax and import check on all Python files.
+   - **Frontend**: Runs `npm run build` to verify the React bundle compiles.
+
+2. **Build & Push (`build-and-push.yml`)**: Triggered automatically only after a successful CI run on `main`. 
+   - Builds multi-architecture Docker images (`linux/amd64`, `linux/arm64`) using QEMU.
+   - Tags images with both `latest` and the specific commit SHA that passed CI.
+   - Pushes the images to the GitHub Container Registry (GHCR).
+
+**Note on Image Visibility**: By default, packages pushed to GHCR in a repository are set to **Private**. To allow the deployment server (or the public) to pull these images without authentication, you must manually change the package visibility to Public in the GitHub UI (under Packages -> Package Settings) after the first successful push.
