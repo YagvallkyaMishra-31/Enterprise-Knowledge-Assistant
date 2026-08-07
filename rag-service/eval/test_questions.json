@@ -1,0 +1,62 @@
+[
+  {
+    "question": "When did Apollo 11 launch?",
+    "expected_answer": "Apollo 11 launched on July 16, 1969 at 13:32 UTC."
+  },
+  {
+    "question": "What kind of rocket launched the Apollo 11 mission?",
+    "expected_answer": "A Saturn V rocket launched the Apollo 11 mission."
+  },
+  {
+    "question": "Where did the Apollo 11 mission launch from?",
+    "expected_answer": "It launched from Kennedy Space Center on Merritt Island, Florida."
+  },
+  {
+    "question": "Who was the first person to step on the Moon?",
+    "expected_answer": "Neil Armstrong was the first person to step on the Moon."
+  },
+  {
+    "question": "How much lunar material did Armstrong and Aldrin collect?",
+    "expected_answer": "They collected 47.5 pounds (21.5 kg) of lunar material."
+  },
+  {
+    "question": "Who piloted the Command Module while the others were on the Moon?",
+    "expected_answer": "Michael Collins flew the Command Module Columbia alone in lunar orbit."
+  },
+  {
+    "question": "What is the origin of the word photosynthesis?",
+    "expected_answer": "It comes from the Greek phōs, meaning 'light', and synthesis, meaning 'putting together'."
+  },
+  {
+    "question": "What are organisms that perform photosynthesis called?",
+    "expected_answer": "Organisms that perform photosynthesis are called photoautotrophs."
+  },
+  {
+    "question": "What gas does photosynthesis produce as a byproduct?",
+    "expected_answer": "Photosynthesis produces oxygen gas."
+  },
+  {
+    "question": "Where are chloroplasts most abundant in plants?",
+    "expected_answer": "Chloroplasts are most abundant in leaf cells."
+  },
+  {
+    "question": "What are the two compounds created to store energy short-term during light-dependent reactions?",
+    "expected_answer": "The two compounds are reduced nicotinamide adenine dinucleotide phosphate (NADPH) and adenosine triphosphate (ATP)."
+  },
+  {
+    "question": "How does photosynthesis differ in bacteria compared to plants?",
+    "expected_answer": "In plants, the proteins involved in photosynthesis are held in organelles called chloroplasts, whereas in bacteria they are embedded in the plasma membrane."
+  },
+  {
+    "question": "What is the capital of France?",
+    "expected_answer": "I don't have enough information in your documents to answer that."
+  },
+  {
+    "question": "How many miles is the Earth from the Sun?",
+    "expected_answer": "I don't have enough information in your documents to answer that."
+  },
+  {
+    "question": "What is the chemical formula for photosynthesis?",
+    "expected_answer": "I don't have enough information in your documents to answer that."
+  }
+]
