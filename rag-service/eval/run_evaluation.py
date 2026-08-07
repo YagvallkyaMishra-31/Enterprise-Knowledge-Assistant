@@ -109,7 +109,7 @@ def run_evaluation(user_id: str):
     # Pre-warm the models so the first calls don't pay cold-load cost
     warm_model(ollama_url, chat_model, embed_model)
 
-    with open("eval/test_questions_reduced.json", "r", encoding="utf-8") as f:
+    with open("eval/test_questions.json", "r", encoding="utf-8") as f:
         questions = json.load(f)
 
     data = {
@@ -179,7 +179,9 @@ def run_evaluation(user_id: str):
 
     metrics = [
         context_precision,
+        context_recall,
         faithfulness,
+        answer_relevancy,
     ]
 
     print(f"\n--- Running RAGAS Evaluation ({len(metrics)} metrics × {len(questions)} questions = {len(metrics) * len(questions)} judge calls) ---")
@@ -210,7 +212,7 @@ def run_evaluation(user_id: str):
     print(f"\n{'='*60}")
     print("=== PER-QUESTION BREAKDOWN ===")
     print(f"{'='*60}")
-    cols = ["question", "context_precision", "faithfulness"]
+    cols = ["question", "context_precision", "context_recall", "faithfulness", "answer_relevancy"]
     display_cols = [c for c in cols if c in df.columns]
     print(df[display_cols].to_string())
 
