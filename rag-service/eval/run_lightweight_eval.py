@@ -149,8 +149,9 @@ def run_lightweight_eval(user_id: str):
         
         # 3. Score (no LLM judge needed!)
         ctx_recall = context_has_answer(context_texts, gt)
+        keyword_overlap_score = context_has_answer(context_texts, gt)
         ans_relevancy = keyword_overlap(answer, q)
-        faithful = faithfulness_check(answer, context_texts)
+        fact_mention_rate = faithfulness_check(answer, context_texts)
         fact_recall = key_fact_recall(answer, gt)
         
         q_elapsed = time.perf_counter() - q_start
@@ -161,15 +162,15 @@ def run_lightweight_eval(user_id: str):
             "answer": answer,
             "ground_truth": gt,
             "num_chunks": len(chunks),
-            "context_recall": round(ctx_recall, 4),
+            "keyword_overlap_score": round(keyword_overlap_score, 4),
             "answer_relevancy": round(ans_relevancy, 4),
-            "faithfulness": round(faithful, 4),
+            "fact_mention_rate": round(fact_mention_rate, 4),
             "fact_recall": round(fact_recall, 4),
             "time_s": round(q_elapsed, 1),
         }
         results.append(result)
         
-        print(f"  Scores: ctx_recall={ctx_recall:.2f} | faithful={faithful:.2f} | fact_recall={fact_recall:.2f} | relevancy={ans_relevancy:.2f}")
+        print(f"  Scores: keyword_overlap_score={keyword_overlap_score:.2f} | fact_mention_rate={fact_mention_rate:.2f} | fact_recall={fact_recall:.2f} | relevancy={ans_relevancy:.2f}")
         print(f"  Time: {q_elapsed:.1f}s")
         print()
         
