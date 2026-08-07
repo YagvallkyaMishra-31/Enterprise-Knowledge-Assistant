@@ -1,16 +1,14 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
-import { useAuth } from '../context/AuthContext'
 import { registerUser } from '../api/auth'
-import { UserPlus, AlertCircle, Loader2 } from 'lucide-react'
+import { ArrowRight, AlertCircle, Loader2, BookOpen, Check, Lock, Cpu } from 'lucide-react'
 
 export default function RegisterPage() {
-  const [fullName, setFullName] = useState('')
+  const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState(null)
   const [loading, setLoading] = useState(false)
-  const { login } = useAuth()
   const navigate = useNavigate()
 
   async function handleSubmit(e) {
@@ -18,9 +16,8 @@ export default function RegisterPage() {
     setError(null)
     setLoading(true)
     try {
-      const data = await registerUser(email, password, fullName)
-      login(data.accessToken, { email, fullName })
-      navigate('/documents')
+      await registerUser(email, password, name)
+      navigate('/login')
     } catch (err) {
       setError(err.message)
     } finally {
@@ -29,70 +26,134 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-start bg-stone-100 px-6 lg:px-20">
-      <div className="w-full max-w-sm">
-        <h1 className="text-3xl font-bold text-stone-900 mb-1">Create Account</h1>
-        <p className="text-stone-500 mb-8 text-sm">Set up your account to start uploading documents and asking questions.</p>
+    <div className="min-h-screen flex w-full bg-[#f7f7f8]">
 
-        {error && (
-          <div className="flex items-start gap-2 bg-red-50 border border-red-200 text-red-700 text-sm px-3 py-2.5 rounded-md mb-4">
-            <AlertCircle size={16} className="mt-0.5 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
+      {/* ── LEFT: Form ── */}
+      <div className="w-full lg:w-[480px] shrink-0 bg-white flex flex-col justify-center px-10 sm:px-14 py-14 border-r border-[#ebebeb]">
+        <div className="w-full max-w-[340px] mx-auto">
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="reg-name" className="block text-sm font-medium text-stone-700 mb-1">Full Name</label>
-            <input
-              id="reg-name"
-              type="text"
-              required
-              value={fullName}
-              onChange={e => setFullName(e.target.value)}
-              className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
-              placeholder="Jane Doe"
-            />
+          {/* Logomark */}
+          <div className="mb-12 flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-[#0f766e] flex items-center justify-center">
+              <BookOpen size={18} className="text-white" strokeWidth={2.2} />
+            </div>
+            <span className="text-[15px] font-semibold text-[#1a1a1a] tracking-tight">
+              Knowledge Assistant
+            </span>
           </div>
-          <div>
-            <label htmlFor="reg-email" className="block text-sm font-medium text-stone-700 mb-1">Email</label>
-            <input
-              id="reg-email"
-              type="email"
-              required
-              value={email}
-              onChange={e => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
-              placeholder="you@example.com"
-            />
-          </div>
-          <div>
-            <label htmlFor="reg-password" className="block text-sm font-medium text-stone-700 mb-1">Password</label>
-            <input
-              id="reg-password"
-              type="password"
-              required
-              minLength={8}
-              value={password}
-              onChange={e => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-stone-300 rounded-md text-sm bg-white text-stone-900 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent"
-              placeholder="Min 8 characters"
-            />
-          </div>
-          <button
-            type="submit"
-            disabled={loading}
-            className="w-full flex items-center justify-center gap-2 bg-teal-700 hover:bg-teal-800 disabled:opacity-50 text-white font-medium py-2.5 px-4 rounded-md text-sm transition-colors"
-          >
-            {loading ? <Loader2 size={16} className="animate-spin" /> : <UserPlus size={16} />}
-            {loading ? 'Creating account...' : 'Create account'}
-          </button>
-        </form>
 
-        <p className="mt-6 text-sm text-stone-500">
-          Already have an account?{' '}
-          <Link to="/login" className="text-teal-700 hover:text-teal-800 font-medium">Sign in</Link>
-        </p>
+          <h1 className="text-[26px] font-semibold text-[#1a1a1a] tracking-tight leading-tight mb-2">
+            Create your account
+          </h1>
+          <p className="text-[14px] text-[#737373] leading-relaxed mb-8">
+            Set up access to start uploading documents and chatting with your knowledge base.
+          </p>
+
+          {error && (
+            <div className="flex items-start gap-2.5 bg-[#fef2f2] border border-[#fecaca] text-[#b91c1c] text-[13px] px-3.5 py-3 rounded-lg mb-6">
+              <AlertCircle size={15} className="mt-0.5 shrink-0" />
+              <span className="font-medium leading-snug">{error}</span>
+            </div>
+          )}
+
+          <form onSubmit={handleSubmit} className="space-y-5">
+            <div>
+              <label htmlFor="reg-name" className="block text-[13px] font-medium text-[#525252] mb-2">
+                Full name
+              </label>
+              <input
+                id="reg-name"
+                type="text"
+                required
+                value={name}
+                onChange={e => setName(e.target.value)}
+                className="input-base"
+                placeholder="Jane Doe"
+              />
+            </div>
+            <div>
+              <label htmlFor="reg-email" className="block text-[13px] font-medium text-[#525252] mb-2">
+                Work email
+              </label>
+              <input
+                id="reg-email"
+                type="email"
+                required
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className="input-base"
+                placeholder="you@company.com"
+              />
+            </div>
+            <div>
+              <label htmlFor="reg-password" className="block text-[13px] font-medium text-[#525252] mb-2">
+                Password
+              </label>
+              <input
+                id="reg-password"
+                type="password"
+                required
+                minLength={8}
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="input-base"
+                placeholder="Minimum 8 characters"
+              />
+            </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full mt-1"
+            >
+              {loading ? (
+                <Loader2 size={16} className="animate-spin" />
+              ) : (
+                <>
+                  Create account
+                  <ArrowRight size={15} className="opacity-70" />
+                </>
+              )}
+            </button>
+          </form>
+
+          <p className="mt-10 text-[13px] text-[#737373] text-center">
+            Already have an account?{' '}
+            <Link to="/login" className="text-[#0f766e] font-medium hover:underline">
+              Sign in
+            </Link>
+          </p>
+        </div>
+      </div>
+
+      {/* ── RIGHT: Brand context ── */}
+      <div className="hidden lg:flex flex-1 flex-col justify-center px-14 lg:px-20 xl:px-28 relative overflow-hidden bg-[#111111]">
+
+        <div className="relative z-10 max-w-[480px]">
+          <h2 className="text-[38px] xl:text-[44px] font-bold text-white leading-[1.15] tracking-tight mb-4">
+            Your documents,<br/>one conversation away.
+          </h2>
+          <p className="text-[16px] text-[#a3a3a3] leading-relaxed mb-12 max-w-[420px]">
+            Upload internal docs, research papers, or any text corpus — then ask questions and get cited, accurate answers in seconds.
+          </p>
+
+          <div className="space-y-6">
+            {[
+              { icon: Check, title: 'Cited answers', desc: 'Every response references specific passages from your documents.' },
+              { icon: Lock, title: 'Fully self-hosted', desc: 'Your data stays on your infrastructure. Nothing leaves the network.' },
+              { icon: Cpu, title: 'Local LLM inference', desc: 'Powered by Ollama — no API keys, no cloud dependencies.' },
+            ].map(({ icon: Icon, title, desc }) => (
+              <div key={title} className="flex items-start gap-3.5">
+                <div className="mt-0.5 w-7 h-7 rounded-md bg-white/[0.06] border border-white/[0.08] flex items-center justify-center shrink-0">
+                  <Icon size={14} className="text-[#2dd4bf]" />
+                </div>
+                <div>
+                  <h3 className="text-[14px] font-medium text-white mb-0.5">{title}</h3>
+                  <p className="text-[13px] text-[#888] leading-relaxed">{desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
     </div>
   )
