@@ -59,7 +59,7 @@ services:
     ports:
       - "8000:8000"
     volumes:
-      - document-uploads:/app/uploads:ro
+      - C:/tmp/knowledge-assistant-uploads:/app/uploads:ro
     depends_on:
       postgres:
         condition: service_healthy

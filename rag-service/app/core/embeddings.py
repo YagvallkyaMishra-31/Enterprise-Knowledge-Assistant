@@ -22,7 +22,7 @@ def get_embedding(text: str) -> List[float]:
     }
     
     try:
-        with httpx.Client(timeout=30.0) as client:
+        with httpx.Client(timeout=300.0) as client:
             response = client.post(url, json=payload)
             response.raise_for_status()
             
