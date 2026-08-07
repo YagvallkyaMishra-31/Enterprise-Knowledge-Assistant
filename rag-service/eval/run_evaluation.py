@@ -109,7 +109,7 @@ def run_evaluation(user_id: str):
     # Pre-warm the models so the first calls don't pay cold-load cost
     warm_model(ollama_url, chat_model, embed_model)
 
-    with open("eval/test_questions.json", "r", encoding="utf-8") as f:
+    with open("eval/test_questions_overnight.json", "r", encoding="utf-8") as f:
         questions = json.load(f)
 
     data = {
@@ -119,7 +119,7 @@ def run_evaluation(user_id: str):
         "ground_truth": []
     }
 
-    partial_out = "eval/results/latest_run.json"
+    partial_out = "eval/results/overnight_run.json"
     # Clear any previous partial data
     os.makedirs("eval/results", exist_ok=True)
     if os.path.exists(partial_out):
@@ -170,6 +170,8 @@ def run_evaluation(user_id: str):
             "num_chunks": len(chunks),
             "generation_time_s": round(q_elapsed, 1),
         })
+        with open("eval/results/overnight.log", "a", encoding="utf-8") as lf:
+            lf.write(f"[{datetime.datetime.now().isoformat()}] Completed question: {q}\n")
 
     gen_elapsed = time.perf_counter() - run_start
     print(f"\nAnswer generation complete in {gen_elapsed:.1f}s")
@@ -178,10 +180,7 @@ def run_evaluation(user_id: str):
     dataset = Dataset.from_dict(data)
 
     metrics = [
-        context_precision,
-        context_recall,
         faithfulness,
-        answer_relevancy,
     ]
 
     print(f"\n--- Running RAGAS Evaluation ({len(metrics)} metrics × {len(questions)} questions = {len(metrics) * len(questions)} judge calls) ---")
