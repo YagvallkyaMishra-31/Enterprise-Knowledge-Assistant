@@ -1,0 +1,11 @@
+:80 {
+    # Reverse proxy for Spring Boot backend API
+    handle /api/* {
+        reverse_proxy backend:8080
+    }
+    
+    # Reverse proxy for frontend
+    handle {
+        reverse_proxy frontend:80
+    }
+}
