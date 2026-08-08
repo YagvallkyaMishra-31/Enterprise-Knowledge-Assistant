@@ -1,5 +1,94 @@
-# Production Docker Compose — configured in Phase 9.
-# This file will add: pre-built image references, Caddy reverse proxy,
-# HTTPS termination, resource limits, restart policies, and log drivers.
+# Production Docker Compose — Phase 10
+# Uses pre-built images from GHCR, Caddy reverse proxy, and healthchecks.
+# Designed for VPS deployment or local testing via Cloudflare Tunnel.
 
-services: {}
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - ka-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USERNAME}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    image: ghcr.io/yagvallkyamishra-31/knowledge-assistant-backend:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+      POSTGRES_HOST: postgres
+    volumes:
+      - document-uploads:/app/uploads
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ka-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  rag-service:
+    image: ghcr.io/yagvallkyamishra-31/knowledge-assistant-rag-service:latest
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres
+      POSTGRES_HOST: postgres
+    volumes:
+      - document-uploads:/app/uploads:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - ka-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  frontend:
+    image: ghcr.io/yagvallkyamishra-31/knowledge-assistant-frontend:latest
+    restart: unless-stopped
+    networks:
+      - ka-network
+
+  caddy:
+    image: caddy:2.7-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+    depends_on:
+      - frontend
+      - backend
+    networks:
+      - ka-network
+
+volumes:
+  pgdata:
+  document-uploads:
+
+networks:
+  ka-network:
+    driver: bridge
